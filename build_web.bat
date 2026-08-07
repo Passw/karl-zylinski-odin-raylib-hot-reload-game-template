@@ -23,7 +23,7 @@ for /f "delims=" %%i in ('odin root') do set "ODIN_PATH=%%i"
 
 copy "%ODIN_PATH%\core\sys\wasm\js\odin.js" %OUT_DIR%
 
-set files=%OUT_DIR%\game.wasm.o "%ODIN_PATH%\vendor\raylib\wasm\libraylib.a" "%ODIN_PATH%\vendor\raylib\wasm\libraygui.a"
+set files=%OUT_DIR%\game.wasm.o "%ODIN_PATH%\vendor\raylib\wasm\libraylib.web.a" "%ODIN_PATH%\vendor\raylib\wasm\libraygui.a"
 
 :: index_template.html contains the javascript code that calls the procedures in
 :: source/main_web/main_web.odin
