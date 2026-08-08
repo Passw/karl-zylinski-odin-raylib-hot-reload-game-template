@@ -7,7 +7,6 @@ package main
 
 import "core:dynlib"
 import "core:fmt"
-import "core:c/libc"
 import "core:os"
 import "core:log"
 import "core:mem"
@@ -192,22 +191,13 @@ main :: proc() {
 				log.errorf("Bad free at: %v", b.location)
 			}
 
-			// This prevents the game from closing without you seeing the bad
-			// frees. This is mostly needed because I use Sublime Text and my game's
-			// console isn't hooked up into Sublime's console properly.
-			libc.getchar()
 			panic("Bad free detected")
 		}
 	}
 
 	free_all(context.temp_allocator)
 	game_api.shutdown()
-	if reset_tracking_allocator(&tracking_allocator) {
-		// This prevents the game from closing without you seeing the memory
-		// leaks. This is mostly needed because I use Sublime Text and my game's
-		// console isn't hooked up into Sublime's console properly.
-		libc.getchar()
-	}
+	leaked := reset_tracking_allocator(&tracking_allocator)
 
 	for &g in old_game_apis {
 		unload_game_api(&g)
@@ -218,6 +208,15 @@ main :: proc() {
 	game_api.shutdown_window()
 	unload_game_api(&game_api)
 	mem.tracking_allocator_destroy(&tracking_allocator)
+
+	// Exit with a non-zero code on a leak so the wrapping console window
+	// (see build_hot_reload.bat) stays open instead of closing immediately,
+	// letting you read the leak report above.
+	//
+	// Windows-only thing for now.
+	if leaked {
+		os.exit(1)
+	}
 }
 
 // Make game use good GPU on laptops.

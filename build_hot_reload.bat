@@ -74,8 +74,12 @@ if not exist "raylib.dll" (
 	)
 )
 
+:: Run the game in its own console window. On a normal exit (code 0) the
+:: window closes right away. On a bad exit (crash, panic, or a memory leak
+:: reported at shutdown) the window stays open with an interactive prompt so
+:: you can read the output, instead of it disappearing immediately.
 if "%~1"=="run" (
 	echo Running %EXE%...
-	start %EXE%
+	start "" cmd /c "%EXE% || (echo. & echo ---- %EXE% exited with an error, see output above. Window stays open. ---- & cmd)"
 )
 
